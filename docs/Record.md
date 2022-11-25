@@ -22,4 +22,15 @@
 4. Read records one by one.
 5. Compare with search value.
 6. If match found then output to console.
-7. Repeat steps 5 and 6 till EOF.
+7. Repeat steps 4 and 6 till EOF.
+
+# Delete
+
+1. Open data file(Ref. A) and Temp file(Ref. T)
+2. Read headers from A.
+3. Get index from searchFor parameter and header.
+4. Read reocrds one by one from A.
+5. Match records from A with required value.
+6. If match found ignore the record.
+7. If match not found write record to T.
+8. Repeat steps 4 to 7 till EOF.

@@ -35,13 +35,13 @@ int main()
     searchRecord("iCard", "lname", "Khan");
     searchRecord("iCard", "mobile", "Malay");
     */
-    deleteRecord(tableName, "fname", "Umang");
+    // deleteRecord(tableName, "fname", "Umang");
     /*
      deleteRecord("iCard", "mobile", "8989677889");
      */
     // updateRecord("iCard", "fname", "Umang", "mobile", "9786756434");
-    // updateRecord("iCard", "fname", "Sarah", "email", "sph@gmail.co.in");
-    // updateRecord("iCard", "fname", "Sarah", "fname", "Maithili");
+    // updateRecord(tableName, "fname", "Saprah", "email", "sph@gmail.co.in");
+    // updateRecord(tableName, "fname", "Zeel", "email", "zeal123@gmail.com");
     // searchRecord("iCard", "email", "het@gmail.com");
     // searchRecord("iCard", "lname", "Bhavsar");
     end = clock();

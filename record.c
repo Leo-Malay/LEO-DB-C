@@ -104,83 +104,63 @@ int insertRecord(char *tableName, int numArg, ...)
 }
 int updateRecord(char *tableName, char *searchFor, char *searchValue, char *updateFor, char *updateValue)
 {
-    FILE *ptr, *tempptr;
+    FILE *ptr, *tempPtr;
+    int searchIndex, updateIndex, flag, count = 0, matchFound, temp;
+    char ch[DATA_BUFF];
     ptr = fopen(tableName, "r");
-    tempptr = fopen("temp", "w");
-    if (ptr == NULL || tempptr == NULL)
+    tempPtr = fopen("tempTable", "w");
+    if (ptr == NULL)
     {
         // table was not found
         writeLog(1, "No such table found");
         fclose(ptr);
         return -1;
     }
-    int searchIndex = getSearchIndexValue(searchFor, ptr),
-        updateIndex = getSearchIndexValue(updateFor, ptr),
-        flag = 0, count, matchFound;
-    printf("searchIndex: %d, updateIndex: %d\n", searchIndex, updateIndex);
-    rewind(ptr);
-    char ch, ch1[100000];
-    int pos;
-    do
+    searchIndex = getSearchIndexValue(searchFor, ptr);
+    updateIndex = getSearchIndexValue(updateFor, ptr);
+
+    fseek(ptr, 0, SEEK_SET);
+    fscanf(ptr, "%[^\n]s", &ch);
+    fgetc(ptr);
+    writeCharFile(tempPtr, ch);
+
+    while (fscanf(ptr, "%[^\n]s", &ch) != EOF)
     {
-        ch = fgetc(ptr);
-        if (ch == EOF)
-            break;
-        else if (ch == '\n')
+        fgetc(ptr);
+        matchFound = doesSearchValueMatch(searchValue, ch, searchIndex);
+        if (matchFound == 1)
         {
-            fprintf(tempptr, "\n");
-            pos = ftell(ptr);
-            if (fscanf(ptr, "%[^\n]s", &ch1) != EOF)
+            // Update the record.
+            temp = updateIndex;
+            flag = 0;
+            for (int i = 0; i < strlen(ch); i++)
             {
-                // printf("%s\n", ch1);
-                matchFound = doesSearchValueMatch(searchValue, ch1, searchIndex);
-                // printf("matchFound: %d\n", matchFound);
-                fseek(ptr, pos, SEEK_SET);
-                if (matchFound == 1)
+                if (temp == 0 || ch[i] == ',')
                 {
-                    // printf("%s\n", ch1);
-                    // printf("UpdateIndex: %d\n", updateIndex);
-                    // printf("Writing: ");
-                    int temp = updateIndex;
-                    while (updateIndex != 0)
+                    if (temp == 0)
                     {
-                        ch = fgetc(ptr);
-                        if (ch == EOF)
-                            break;
-                        if (ch == ',')
-                            updateIndex--;
-                        // printf("%c", ch);
-                        fprintf(tempptr, "%c", ch);
+                        fprintf(tempPtr, "%s", updateValue);
+                        flag = 1;
                     }
-                    // Writing updated value.
-                    // printf("%s", updateValue);
-                    fprintf(tempptr, "%s", updateValue);
-                    flag = 0;
-                    do
-                    {
-                        ch = fgetc(ptr);
-                        if (ch == EOF)
-                            break;
-                        if (ch == ',')
-                            flag = 1;
-                        if (flag == 1)
-                        {
-                            // printf("%c", ch);
-                            fprintf(tempptr, "%c", ch);
-                        }
-                    } while (ch != '\n');
+                    else
+                        flag = 0;
+                    temp--;
                 }
-                writeLog(3, "Data Updated");
-                continue;
+                if (flag == 0)
+                    fprintf(tempPtr, "%c", ch[i]);
             }
+            fprintf(tempPtr, "\n");
+            count++;
         }
         else
-            fprintf(tempptr, "%c", ch);
-    } while (ch != EOF);
+            writeCharFile(tempPtr, ch);
+    }
+
     fclose(ptr);
-    fclose(tempptr);
+    fclose(tempPtr);
     remove(tableName);
-    rename("temp", tableName);
+    rename("tempTable", tableName);
+    printf("[SUCCESS] %d records updated\n", count);
     return 1;
 }
 int searchRecord(char *tableName, char *searchFor, char *searchValue)
