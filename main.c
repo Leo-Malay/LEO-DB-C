@@ -11,7 +11,7 @@ int main()
     // Starting to measure time.
     start = clock();
     createTable(tableName, 4, "fname", "lname", "email", "mobile");
-    insertRecord(tableName, 4, "Katty", "Perry", "katty@gmail.com", "9587453423");
+
     /*
     for (int i = 0; i < 1; i++)
     {
@@ -28,8 +28,8 @@ int main()
         insertRecord(tableName, 4, "Ammar", "Malik", "ammar@gmail.com", "9587453423");
     }
     */
+    searchRecord(tableName, "lname", "Bhavsar");
     /*
-    searchRecord("iCard", "lname", "Bhavsar");
     searchRecord("iCard", "fname", "Malay");
     searchRecord("iCard", "email", "krishan@gmail.com");
     searchRecord("iCard", "lname", "Khan");

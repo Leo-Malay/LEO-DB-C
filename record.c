@@ -186,6 +186,8 @@ int updateRecord(char *tableName, char *searchFor, char *searchValue, char *upda
 int searchRecord(char *tableName, char *searchFor, char *searchValue)
 {
     FILE *ptr;
+    char ch[DATA_BUFF];
+    int searchIndex, matchCount = 0, matchFound;
     ptr = fopen(tableName, "r");
     if (ptr == NULL)
     {
@@ -194,10 +196,8 @@ int searchRecord(char *tableName, char *searchFor, char *searchValue)
         fclose(ptr);
         return -1;
     }
-    // table found now looping over the arguments
-    int searchIndex = getSearchIndexValue(searchFor, ptr), matchFound = 0;
-    char ch[100000];
-    // reading a single line
+
+    searchIndex = getSearchIndexValue(searchFor, ptr);
     while (fscanf(ptr, "%[^\n]s", &ch) != EOF)
     {
         matchFound = doesSearchValueMatch(searchValue, ch, searchIndex);
@@ -258,68 +258,46 @@ int deleteRecord(char *tableName, char *searchFor, char *searchValue)
 // Helper function;
 int getSearchIndexValue(char *searchFor, FILE *ptr)
 {
-    // printf("Looking for %s\n", searchFor);
-    int searchIndex = -1, searchCount = 0, indexCount = 0;
+    int matchCount = 0, currIndexCount = 0, lenSearchFor = strlen(searchFor);
     char ch;
-    rewind(ptr);
-    // loop over the header
+    fseek(ptr, 0, SEEK_SET);
     do
     {
         ch = fgetc(ptr);
-        if (searchIndex == -1)
+        if (ch == ',')
         {
-            // printf("Comparing: %c == %c", ch, searchFor[searchCount]);
-            if (ch == ',')
-            {
-                indexCount++;
-                searchCount = 0;
-            }
-            else if (ch == searchFor[searchCount])
-                searchCount++;
-            else
-                searchCount = 0;
-            // printf(" --> searchCount: %d, searchValueSize: %d\n", searchCount, strlen(searchFor));
-            if (searchCount == strlen(searchFor))
-            {
-                // printf("searchCount: %d === searchValueSize: %d\n", searchCount, strlen(searchFor));
-                searchIndex = indexCount;
-                break;
-            }
+            currIndexCount++;
+            matchCount = 0;
+        }
+        else if (ch == searchFor[matchCount])
+            matchCount++;
+        else
+            matchCount = 0;
+        if (matchCount == lenSearchFor)
+        {
+            return currIndexCount;
         }
     } while (ch != '\n');
-
-    return searchIndex;
+    return -1;
 }
 int doesSearchValueMatch(char *searchValue, char *ch, int searchIndex)
 {
-    // printf("Recieved: %s\nLooking for %s\n", ch, searchValue);
-    int searchCount = 0, matchCount = 0, flag = 0;
-    while (ch[searchCount] != '\0')
+    int matchCount = 0;
+    for (int i = 0; i < strlen(ch); i++)
     {
-        if (ch[searchCount] == ',')
+        if (ch[i] == ',')
             searchIndex--;
-        if (searchIndex == 0)
+        else if (searchIndex == 0)
         {
-            // printf("Comparing: %c == %c", ch[searchCount], searchValue[matchCount]);
-            if (ch[searchCount] == searchValue[matchCount])
-            {
+            if (ch[i] == searchValue[matchCount])
                 matchCount++;
-            }
             else
                 matchCount = 0;
-            // printf(" --> matchCount: %d, searchValueSize: %d\n", matchCount, sizeof(searchValue));
             if (matchCount == sizeof(searchValue) - 1)
-            {
-                flag = 1;
-                break;
-            }
+                return 1;
         }
-        searchCount++;
     }
-    if (flag == 1)
-        return 1;
-    else
-        return -1;
+    return -1;
 }
 void writeCharFile(FILE *ptr, char *data)
 {
