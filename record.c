@@ -210,48 +210,43 @@ int searchRecord(char *tableName, char *searchFor, char *searchValue)
 }
 int deleteRecord(char *tableName, char *searchFor, char *searchValue)
 {
-    FILE *ptr, *tempptr;
+    FILE *ptr, *tempPtr;
+    int searchIndex, count = 0, matchFound;
+    char ch, ch1[DATA_BUFF];
+
     ptr = fopen(tableName, "r");
-    tempptr = fopen("temp", "w");
-    if (ptr == NULL || tempptr == NULL)
+    tempPtr = fopen("tempTable", "w");
+    if (ptr == NULL)
     {
         // table was not found
         writeLog(1, "No such table found");
         fclose(ptr);
         return -1;
     }
-    // table found now looping over the arguments
-    int searchIndex = getSearchIndexValue(searchFor, ptr), flag = 0, count, matchFound;
-    rewind(ptr);
-    char ch, ch1[100000];
-    int pos;
-    // reading a single line
-    do
+
+    searchIndex = getSearchIndexValue(searchFor, ptr);
+
+    // Writing header
+    fseek(ptr, 0, SEEK_SET);
+    fscanf(ptr, "%[^\n]s", &ch1);
+    fgetc(ptr);
+    writeCharFile(tempPtr, ch1);
+
+    while (fscanf(ptr, "%[^\n]s", &ch1) != EOF)
     {
-        ch = fgetc(ptr);
-        if (ch == EOF)
-            break;
-        else if (ch == '\n')
-        {
-            pos = ftell(ptr);
-            if (fscanf(ptr, "%[^\n]s", &ch1) != EOF)
-            {
-                matchFound = doesSearchValueMatch(searchValue, ch1, searchIndex);
-                if (matchFound == -1)
-                    fseek(ptr, pos, SEEK_SET);
-                else
-                {
-                    writeLog(3, "Removing Record");
-                    continue;
-                }
-            }
-        }
-        fprintf(tempptr, "%c", ch);
-    } while (ch != EOF);
+        fgetc(ptr);
+        matchFound = doesSearchValueMatch(searchValue, ch1, searchIndex);
+        if (matchFound == -1)
+            writeCharFile(tempPtr, ch1);
+        else
+            count++;
+    }
+
     fclose(ptr);
-    fclose(tempptr);
+    fclose(tempPtr);
     remove(tableName);
-    rename("temp", tableName);
+    rename("tempTable", tableName);
+    printf("[SUCCESS] %d records removed\n", count);
     return 1;
 }
 

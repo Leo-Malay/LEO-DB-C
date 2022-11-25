@@ -9,11 +9,10 @@ int main()
     char *tableName = "data/Card";
 
     // Starting to measure time.
-    start = clock();
     createTable(tableName, 4, "fname", "lname", "email", "mobile");
-
+    start = clock();
     /*
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < 100; i++)
     {
         insertRecord(tableName, 4, "Het", "Bhavsar", "het@gmail.com", "9426217367");
         insertRecord(tableName, 4, "Katty", "Perry", "katty@gmail.com", "9587453423");
@@ -28,15 +27,16 @@ int main()
         insertRecord(tableName, 4, "Ammar", "Malik", "ammar@gmail.com", "9587453423");
     }
     */
-    searchRecord(tableName, "lname", "Bhavsar");
+    // searchRecord(tableName, "fname", "Zeel");
+    // searchRecord(tableName, "email", "zeel@gmail.com");
     /*
     searchRecord("iCard", "fname", "Malay");
     searchRecord("iCard", "email", "krishan@gmail.com");
     searchRecord("iCard", "lname", "Khan");
     searchRecord("iCard", "mobile", "Malay");
     */
+    deleteRecord(tableName, "fname", "Umang");
     /*
-     deleteRecord("iCard", "mobile", "9587453423");
      deleteRecord("iCard", "mobile", "8989677889");
      */
     // updateRecord("iCard", "fname", "Umang", "mobile", "9786756434");
