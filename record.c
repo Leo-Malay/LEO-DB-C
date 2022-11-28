@@ -13,6 +13,7 @@ int getSearchIndexValue(char *searchFor, FILE *ptr);
 int doesSearchValueMatch(char *searchValue, char *ch, int searchIndex);
 void writeCharFile(FILE *ptr, char *data);
 
+// Singluar Function
 int insertRecord(char *tableName, int numArg, ...)
 {
     FILE *ptr, *tempPtr, *tempData;
@@ -107,6 +108,7 @@ int updateRecord(char *tableName, char *searchFor, char *searchValue, char *upda
     FILE *ptr, *tempPtr;
     int searchIndex, updateIndex, flag, count = 0, matchFound, temp;
     char ch[DATA_BUFF];
+
     ptr = fopen(tableName, "r");
     tempPtr = fopen("tempTable", "w");
     if (ptr == NULL)
@@ -230,7 +232,7 @@ int deleteRecord(char *tableName, char *searchFor, char *searchValue)
     return 1;
 }
 
-// Helper function;
+// Helper function
 int getSearchIndexValue(char *searchFor, FILE *ptr)
 {
     int matchCount = 0, currIndexCount = 0, lenSearchFor = strlen(searchFor);
